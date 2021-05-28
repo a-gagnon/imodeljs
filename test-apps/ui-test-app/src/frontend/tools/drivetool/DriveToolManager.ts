@@ -343,6 +343,7 @@ export class DriveToolManager {
       this.progress += fraction;
     }
     this.updateProgressCounter();
+    this._linkedDriveTool.updateRectangleDecoration();
   }
 
   /**

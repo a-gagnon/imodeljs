@@ -213,6 +213,16 @@ export class DriveTool extends PrimitiveTool {
   }
 
   /**
+   * Locates the element under the mouse using the last called event then updates the mouse decoration.
+   */
+  public async updateRectangleDecoration(): Promise<void> {
+    let curEvent = new BeButtonEvent;
+    this.getCurrentButtonEvent(curEvent);
+    const hit = await IModelApp.locateManager.doLocate(new LocateResponse(), true, curEvent.point, curEvent.viewport, curEvent.inputSource);
+    this._manager.updateMouseDecoration(curEvent.viewPoint, hit);
+  }
+
+  /**
    * Reinitializes the tool
    * @param _ev
    */
