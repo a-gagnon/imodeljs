@@ -322,9 +322,15 @@ export class DriveToolManager {
     }
   }
 
+  /**
+   * Updates distance mouse decoration
+   * @param mousePosition - Current mouse position in view coordinates
+   * @param pointLocation - Point of first surface encountered
+   */
   public updateMouseDecorationWithPosition(mousePosition: Point3d, pointLocation: Point3d | undefined) {
     this.distanceDecoration.mousePosition.setFrom(mousePosition);
     if (this._positionOnCurve && pointLocation) {
+      console.log("Current position on curve: x: " + this._positionOnCurve.x + " y: " + this._positionOnCurve.y + " z: " + this._positionOnCurve.z + "\nCurrent mousePositon: x: " + mousePosition.x + " y: " + mousePosition.y + " z: " + mousePosition.z + "\nCurrent PointLocation: x: " + pointLocation.x + " y: " + pointLocation.y + " z: " + pointLocation.z);
       this.distanceDecoration.distance = this._positionOnCurve.distance(pointLocation);
     } else {
       this.distanceDecoration.distance = 0;
