@@ -117,7 +117,7 @@ export class DriveTool extends PrimitiveTool {
       case DriveToolProperties.lateralOffset.name: this._manager.lateralOffset = value; break;
       case DriveToolProperties.speed.name: this._manager.speed = value / 3.6; break;
       case DriveToolProperties.fov.name: this._manager.fov = value; break;
-      case DriveToolProperties.progress.name: this._manager.progress = value; break;
+      case DriveToolProperties.progress.name: this._manager.progress = value / 100; break;
       case DriveToolProperties.targetDistance.name: this._manager.targetDistance = value; break;
     }
     this.syncAllSettings();
@@ -130,7 +130,7 @@ export class DriveTool extends PrimitiveTool {
    */
   public syncProgress() {
     this.syncToolSettingsProperties([
-      { value: { value: this._manager.progress }, propertyName: DriveToolProperties.progress.name },
+      { value: { value: (this._manager.progress * 100) }, propertyName: DriveToolProperties.progress.name },
     ]);
   }
 
@@ -144,7 +144,7 @@ export class DriveTool extends PrimitiveTool {
       { value: { value: this._manager.lateralOffset }, propertyName: DriveToolProperties.lateralOffset.name },
       { value: { value: this._manager.speed * 3.6 }, propertyName: DriveToolProperties.speed.name },
       { value: { value: this._manager.fov }, propertyName: DriveToolProperties.fov.name },
-      { value: { value: this._manager.progress }, propertyName: DriveToolProperties.progress.name },
+      { value: { value: (this._manager.progress * 100) }, propertyName: DriveToolProperties.progress.name },
       { value: { value: this._manager.targetDistance }, propertyName: DriveToolProperties.targetDistance.name },
     ]);
   }
