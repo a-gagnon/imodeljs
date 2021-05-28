@@ -210,7 +210,7 @@ export class DriveTool extends PrimitiveTool {
    */
   public async onMouseMotion(ev: BeButtonEvent): Promise<void> {
     this._manager.updateMouseDecorationWithPosition(ev.viewPoint, ev.viewport?.pickNearestVisibleGeometry(ev.point))
-    ev.viewport?.invalidateDecorations()
+    ev.viewport?.invalidateDecorations();
   }
 
   /**
@@ -220,6 +220,7 @@ export class DriveTool extends PrimitiveTool {
     let curEvent = new BeButtonEvent;
     this.getCurrentButtonEvent(curEvent);
     this._manager.updateMouseDecorationWithPosition(curEvent.viewPoint, curEvent.viewport?.pickNearestVisibleGeometry(curEvent.point))
+    curEvent.viewport?.invalidateDecorations();
   }
 
   /**
