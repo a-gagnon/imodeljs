@@ -28,7 +28,7 @@ export class DriveTool extends PrimitiveTool {
   public static toolId = "DriveTool";
   public static iconSpec = "icon-airplane";
 
-  private _manager = new DriveToolManager(new DistanceDecoration(), new RectangleDecoration());
+  private _manager = new DriveToolManager(new DistanceDecoration(), new RectangleDecoration(), this);
   private _inputManager = new DriveToolInputManager(this._manager);
 
   public static get driveToolItemDef() {
@@ -122,6 +122,16 @@ export class DriveTool extends PrimitiveTool {
     }
     this.syncAllSettings();
     return true;
+  }
+
+  /**
+   * Syncs Progress with the UI when values have changed
+   * @public
+   */
+  public syncProgress() {
+    this.syncToolSettingsProperties([
+      { value: { value: this._manager.progress }, propertyName: DriveToolProperties.progress.name },
+    ]);
   }
 
   /**

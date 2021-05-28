@@ -19,6 +19,7 @@ import { DriveToolConfig } from "./DriveToolConfig";
 import { DistanceDecoration } from "./DistanceDecoration";
 import { RectangleDecoration } from "./RectangleDecoration";
 import { ShapeUtils } from './ShapeUtils';
+import { DriveTool } from './DriveTool'
 
 export class DriveToolManager {
 
@@ -63,7 +64,8 @@ export class DriveToolManager {
   private _targetId?: string;
 
   constructor(private _distanceDecoration: DistanceDecoration,
-              private _detectionZoneDecoration: RectangleDecoration) {
+    private _detectionZoneDecoration: RectangleDecoration,
+    private _linkedDriveTool: DriveTool) {
   }
 
   public get targetEnabled(): boolean {
@@ -321,6 +323,17 @@ export class DriveToolManager {
   }
 
   /**
+   * Updates the current progress
+   * @private
+   */
+  private updateProgressCounter(): void {
+    this._linkedDriveTool.syncProgress();
+    if (this._progress >= 1) {
+      this.toggleMovement();
+    }
+  }
+
+  /**
    * Makes an increment of the movement along the curve
    * @private
    */
@@ -329,6 +342,7 @@ export class DriveToolManager {
       const fraction = (this._speed * this._intervalTime) / this._selectedCurve.curveLength();
       this.progress += fraction;
     }
+    this.updateProgressCounter();
   }
 
   /**
