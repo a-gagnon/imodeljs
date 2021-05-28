@@ -322,6 +322,15 @@ export class DriveToolManager {
     }
   }
 
+  updateMouseDecorationWithPosition(mousePosition: Point3d, pointLocation: Point3d | undefined) {
+    this.distanceDecoration.mousePosition = mousePosition;
+    if (this._positionOnCurve && pointLocation) {
+      this.distanceDecoration.distance = this._positionOnCurve.distance(pointLocation);
+    } else {
+      this.distanceDecoration.distance = 0;
+    }
+  }
+
   /**
    * Updates the current progress
    * @private

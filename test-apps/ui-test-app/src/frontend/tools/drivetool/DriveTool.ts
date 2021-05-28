@@ -208,8 +208,7 @@ export class DriveTool extends PrimitiveTool {
    * @param ev mouse motion event
    */
   public async onMouseMotion(ev: BeButtonEvent): Promise<void> {
-    const hit = await IModelApp.locateManager.doLocate(new LocateResponse(), true, ev.point, ev.viewport, ev.inputSource);
-    this._manager.updateMouseDecoration(ev.viewPoint, hit);
+    this._manager.updateMouseDecorationWithPosition(ev.viewPoint, ev.viewport?.pickNearestVisibleGeometry(ev.point))
   }
 
   /**
@@ -218,8 +217,7 @@ export class DriveTool extends PrimitiveTool {
   public async updateRectangleDecoration(): Promise<void> {
     let curEvent = new BeButtonEvent;
     this.getCurrentButtonEvent(curEvent);
-    const hit = await IModelApp.locateManager.doLocate(new LocateResponse(), true, curEvent.point, curEvent.viewport, curEvent.inputSource);
-    this._manager.updateMouseDecoration(curEvent.viewPoint, hit);
+    this._manager.updateMouseDecorationWithPosition(curEvent.viewPoint, curEvent.viewport?.pickNearestVisibleGeometry(curEvent.point))
   }
 
   /**
