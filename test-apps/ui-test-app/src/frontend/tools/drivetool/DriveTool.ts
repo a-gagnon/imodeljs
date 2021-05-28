@@ -180,6 +180,7 @@ export class DriveTool extends PrimitiveTool {
     if (hit?.sourceId) {
       await this._manager.setSelectedCurve(hit.sourceId);
     }
+    IModelApp.accuSnap.enableSnap(false);
     return EventHandled.Yes;
   }
 
@@ -209,6 +210,7 @@ export class DriveTool extends PrimitiveTool {
    */
   public async onMouseMotion(ev: BeButtonEvent): Promise<void> {
     this._manager.updateMouseDecorationWithPosition(ev.viewPoint, ev.viewport?.pickNearestVisibleGeometry(ev.point))
+    ev.viewport?.invalidateDecorations()
   }
 
   /**
