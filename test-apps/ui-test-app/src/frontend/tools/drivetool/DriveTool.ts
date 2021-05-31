@@ -219,6 +219,7 @@ export class DriveTool extends PrimitiveTool {
   public async updateRectangleDecoration(): Promise<void> {
     let curEvent = new BeButtonEvent;
     this.getCurrentButtonEvent(curEvent);
+    console.log("curEvent: x: " + curEvent.point.x + " y: " + curEvent.point.y + " z: " + curEvent.point.z)
     this._manager.updateMouseDecorationWithPosition(curEvent.viewPoint, curEvent.viewport?.pickNearestVisibleGeometry(curEvent.point, 1))
     curEvent.viewport?.invalidateDecorations();
   }

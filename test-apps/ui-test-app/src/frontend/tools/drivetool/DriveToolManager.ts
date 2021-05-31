@@ -331,6 +331,7 @@ export class DriveToolManager {
     this.distanceDecoration.mousePosition.setFrom(mousePosition);
     if (this._positionOnCurve && pointLocation) {
       console.log("Current position on curve: x: " + this._positionOnCurve.x + " y: " + this._positionOnCurve.y + " z: " + this._positionOnCurve.z + "\nCurrent mousePositon: x: " + mousePosition.x + " y: " + mousePosition.y + " z: " + mousePosition.z + "\nCurrent PointLocation: x: " + pointLocation.x + " y: " + pointLocation.y + " z: " + pointLocation.z);
+      console.log("Distance: " + this._positionOnCurve.distance(pointLocation))
       this.distanceDecoration.distance = this._positionOnCurve.distance(pointLocation);
     } else {
       this.distanceDecoration.distance = 0;
@@ -356,9 +357,9 @@ export class DriveToolManager {
     if (this._selectedCurve) {
       const fraction = (this._speed * this._intervalTime) / this._selectedCurve.curveLength();
       this.progress += fraction;
+      this.updateProgressCounter();
+      this._linkedDriveTool.updateRectangleDecoration();
     }
-    this.updateProgressCounter();
-    this._linkedDriveTool.updateRectangleDecoration();
   }
 
   /**
