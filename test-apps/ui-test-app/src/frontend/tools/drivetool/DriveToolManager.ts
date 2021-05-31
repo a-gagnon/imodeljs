@@ -42,8 +42,6 @@ export class DriveToolManager {
   private _progress = 0;
   /** Current position on the curve */
   private _positionOnCurve?: Point3d;
-  /** Last position on the curve */
-  private _oldPositionOnCurve?: Point3d;
   /** Camera offset on the z axis from the current position on the selected curve */
   private _height = DriveToolConfig.heightDefault;
   /** Camera offset perpendicular to the view direction from the current position on the selected curve */
@@ -310,19 +308,7 @@ export class DriveToolManager {
     this.updateProgress();
   }
 
-  /**
-   * Updates distance mouse decoration
-   * @param mousePosition - Current mouse position in view coordinates
-   * @param hit - Current hit at mouse position
-   */
-  public updateMouseDecoration(mousePosition: Point3d, hit: HitDetail | undefined): void {
-    this.distanceDecoration.mousePosition = mousePosition;
-    if (this._positionOnCurve && hit) {
-      this.distanceDecoration.distance = this._positionOnCurve.distance(hit.getPoint());
-    } else {
-      this.distanceDecoration.distance = 0;
-    }
-  }
+
 
   /**
    * Updates distance mouse decoration
@@ -373,7 +359,6 @@ export class DriveToolManager {
   private updateProgress(): void {
     if (this._selectedCurve) {
       this._cameraLookAt = this._selectedCurve?.fractionToPointAndUnitTangent(this._progress).getDirectionRef();
-      this._oldPositionOnCurve = this._positionOnCurve;
       this._positionOnCurve = this._selectedCurve?.fractionToPoint(this._progress);
       this.updateCamera();
     }
