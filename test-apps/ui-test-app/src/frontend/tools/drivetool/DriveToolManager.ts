@@ -42,6 +42,8 @@ export class DriveToolManager {
   private _progress = 0;
   /** Current position on the curve */
   private _positionOnCurve?: Point3d;
+  /** Last position on the curve */
+  private _oldPositionOnCurve?: Point3d;
   /** Camera offset on the z axis from the current position on the selected curve */
   private _height = DriveToolConfig.heightDefault;
   /** Camera offset perpendicular to the view direction from the current position on the selected curve */
@@ -330,9 +332,11 @@ export class DriveToolManager {
   public updateMouseDecorationWithPosition(mousePosition: Point3d, pointLocation: Point3d | undefined) {
     this.distanceDecoration.mousePosition.setFrom(mousePosition);
     if (this._positionOnCurve && pointLocation) {
-      console.log("Current position on curve: x: " + this._positionOnCurve.x + " y: " + this._positionOnCurve.y + " z: " + this._positionOnCurve.z + "\nCurrent mousePositon: x: " + mousePosition.x + " y: " + mousePosition.y + " z: " + mousePosition.z + "\nCurrent PointLocation: x: " + pointLocation.x + " y: " + pointLocation.y + " z: " + pointLocation.z);
-      console.log("Distance: " + this._positionOnCurve.distance(pointLocation))
-      this.distanceDecoration.distance = this._positionOnCurve.distance(pointLocation);
+      if (this._viewport?.view.getCenter().distance(pointLocation)) {
+        console.log(this._viewport?.view.getCenter());
+        console.log(pointLocation)
+        this.distanceDecoration.distance = this._viewport?.view.getCenter().distance(pointLocation);
+      }
     } else {
       this.distanceDecoration.distance = 0;
     }
@@ -369,6 +373,7 @@ export class DriveToolManager {
   private updateProgress(): void {
     if (this._selectedCurve) {
       this._cameraLookAt = this._selectedCurve?.fractionToPointAndUnitTangent(this._progress).getDirectionRef();
+      this._oldPositionOnCurve = this._positionOnCurve;
       this._positionOnCurve = this._selectedCurve?.fractionToPoint(this._progress);
       this.updateCamera();
     }

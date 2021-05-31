@@ -8,7 +8,7 @@ export class DriveToolConfig {
   public static intervalTime = 0.5;
 
   public static heightMin = 0.1;
-  public static heightMax = 5;
+  public static heightMax = 20;
   public static heightStep = 0.1;
   public static heightDefault = 1.5;
 
