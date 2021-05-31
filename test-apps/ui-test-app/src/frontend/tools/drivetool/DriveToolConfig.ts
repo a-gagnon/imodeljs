@@ -31,5 +31,5 @@ export class DriveToolConfig {
   public static detectionRectangleHeight = 100;
 
   public static targetDistanceDefault = 200;
-  public static targetHeight = 3;
+  public static targetHeight = 0.5;
 }

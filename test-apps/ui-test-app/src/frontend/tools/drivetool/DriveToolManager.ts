@@ -216,9 +216,14 @@ export class DriveToolManager {
         rectangle.initFromPoints(topLeft, bottomRight);
 
         this._viewport?.readPixels(rectangle, Pixel.Selector.All, (pixels) => {
+          console.log(this._targetId)
           for (let y = topLeft.y; y <= bottomRight.y && !hit; y++) {
             for (let x = topLeft.x; x <= bottomRight.x && !hit; x++) {
+              console.log("Checking pixel x: " + x + " y: " + y)
+              console.log(pixels?.getPixel(x, y)?.elementId)
+              console.log(pixels?.getPixel(x, y)?.distanceFraction)
               if (pixels?.getPixel(x, y)?.elementId === this._targetId) {
+                console.log("hit!")
                 hit = true;
               }
             }
@@ -308,8 +313,6 @@ export class DriveToolManager {
     this.updateProgress();
   }
 
-
-
   /**
    * Updates distance mouse decoration
    * @param mousePosition - Current mouse position in view coordinates
@@ -319,8 +322,6 @@ export class DriveToolManager {
     this.distanceDecoration.mousePosition.setFrom(mousePosition);
     if (this._positionOnCurve && pointLocation) {
       if (this._viewport?.view.getCenter().distance(pointLocation)) {
-        console.log(this._viewport?.view.getCenter());
-        console.log(pointLocation)
         this.distanceDecoration.distance = this._viewport?.view.getCenter().distance(pointLocation);
       }
     } else {
