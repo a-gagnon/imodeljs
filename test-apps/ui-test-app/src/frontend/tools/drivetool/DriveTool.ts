@@ -30,6 +30,7 @@ export class DriveTool extends PrimitiveTool {
 
   private _manager = new DriveToolManager(new DistanceDecoration(), new RectangleDecoration(), this);
   private _inputManager = new DriveToolInputManager(this._manager);
+  private _lastLoggedEvent?: BeButtonEvent;
 
   public static get driveToolItemDef() {
     return new ToolItemDef({
@@ -211,16 +212,17 @@ export class DriveTool extends PrimitiveTool {
   public async onMouseMotion(ev: BeButtonEvent): Promise<void> {
     this._manager.updateMouseDecorationWithPosition(ev.viewPoint, ev.viewport?.pickNearestVisibleGeometry(ev.point, 1))
     ev.viewport?.invalidateDecorations();
+    this._lastLoggedEvent = ev.clone();
   }
 
   /**
    * Locates the element under the mouse using the last called event then updates the mouse decoration.
    */
   public async updateRectangleDecoration(): Promise<void> {
-    let curEvent = new BeButtonEvent;
-    this.getCurrentButtonEvent(curEvent);
-    this._manager.updateMouseDecorationWithPosition(curEvent.viewPoint, curEvent.viewport?.pickNearestVisibleGeometry(curEvent.point, 1))
-    curEvent.viewport?.invalidateDecorations();
+    if (this._lastLoggedEvent) {
+      this._manager.updateMouseDecorationWithPosition(this._lastLoggedEvent.viewPoint, this._lastLoggedEvent.viewport?.pickNearestVisibleGeometry(this._lastLoggedEvent.point, 1))
+      this._lastLoggedEvent.viewport?.invalidateDecorations();
+    }
   }
 
   /**

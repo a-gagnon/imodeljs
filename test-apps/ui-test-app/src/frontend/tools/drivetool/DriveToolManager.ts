@@ -215,29 +215,32 @@ export class DriveToolManager {
 
       if (corners) {
         const { topLeft, bottomRight } = corners;
-        const center = new Point3d(bottomRight.x + topLeft.x / 2, bottomRight.y + topLeft.y / 2, 0);
+        const center = new Point3d((bottomRight.x + topLeft.x) / 2, (bottomRight.y + topLeft.y) / 2, 0);
         const rectangle = new ViewRect();
         rectangle.initFromPoints(topLeft, bottomRight);
 
         const targetLocation = this.getPositionAtDistance(this._targetDistance);
         let curEvent = new BeButtonEvent;
         this._linkedDriveTool.getCurrentButtonEvent(curEvent);
-        let targetedFromView = curEvent.viewport?.pickNearestVisibleGeometry(center, 1)
+        const targetedFromView = curEvent.viewport?.pickNearestVisibleGeometry(center, 1);
+        const currentViewPort = this._viewport;
         if (targetLocation && targetedFromView) {
-          console.log("--------------")
-          console.log("Real distance:")
-          console.log(this._viewport?.view.getCenter().distance(targetLocation))
-          console.log("Viewed distance:")
-          console.log(this._viewport?.view.getCenter().distance(targetedFromView))
-          console.log("Center: ")
-          console.log(center)
-          console.log("targetLocation: ")
-          console.log(targetLocation)
-          console.log("TargetFromView: ")
-          console.log(targetedFromView)
-          if (this._viewport?.view.getCenter().distance(targetLocation) - 10 < this._viewport?.view.getCenter().distance(targetedFromView)) {
+          console.log("--------------");
+          console.log("Real distance:");
+          console.log(this._viewport?.view.getCenter().distance(targetLocation));
+          console.log("Viewed distance:");
+          console.log(this._viewport?.view.getCenter().distance(targetedFromView));
+          console.log("Center: ");
+          console.log(center);
+          console.log("targetLocation: ");
+          console.log(targetLocation);
+          console.log("TargetFromView: ");
+          console.log(targetedFromView);
+          if (currentViewPort.view.getCenter().distance(targetLocation) - 10 < currentViewPort.view.getCenter().distance(targetedFromView)) {
             hit = true;
           }
+        } else {
+          const message = new NotifyMessageDetails(OutputMessagePriority.Warning, "Unable to verify target location");
         }
       }
     }
@@ -330,9 +333,11 @@ export class DriveToolManager {
    */
   public updateMouseDecorationWithPosition(mousePosition: Point3d, pointLocation: Point3d | undefined) {
     this.distanceDecoration.mousePosition.setFrom(mousePosition);
-    if (this._positionOnCurve && pointLocation && this._current3DPosition) {
-      if (this._current3DPosition.distance(pointLocation)) {
-        this.distanceDecoration.distance = this._current3DPosition.distance(pointLocation);
+    if (this._positionOnCurve && pointLocation && this._viewport) {
+      const current3DPosition = this._viewport?.view.getCenter();
+      console.log(mousePosition)
+      if (current3DPosition.distance(pointLocation)) {
+        this.distanceDecoration.distance = current3DPosition.distance(pointLocation);
       }
     } else {
       this.distanceDecoration.distance = 0;
