@@ -3,6 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import {
+  BeButtonEvent,
   HitDetail,
   IModelApp,
   NotifyMessageDetails,
@@ -48,6 +49,10 @@ export class DriveToolManager {
   private _lateralOffset = DriveToolConfig.lateralOffsetDefault;
   /** Speed of the movement along the selected curve in unit/s */
   private _speed = DriveToolConfig.speedDefault;
+  /**Current position in the 3d World */
+  private _current3DPosition?: Point3d;
+  /**Next position in the 3d World */
+  private _next3DPosition?: Point3d;
 
   /** Time between each calculation of the next position to move to along the curve */
   private _intervalTime = DriveToolConfig.intervalTime;
@@ -206,29 +211,34 @@ export class DriveToolManager {
   public isTargetVisible(): boolean {
     let hit = false;
     if (this.targetId && this._viewport) {
-
       const corners = this.getDetectionZoneCorners();
 
       if (corners) {
         const { topLeft, bottomRight } = corners;
-
+        const center = new Point3d(bottomRight.x + topLeft.x / 2, bottomRight.y + topLeft.y / 2, 0);
         const rectangle = new ViewRect();
         rectangle.initFromPoints(topLeft, bottomRight);
 
-        this._viewport?.readPixels(rectangle, Pixel.Selector.All, (pixels) => {
-          console.log(this._targetId)
-          for (let y = topLeft.y; y <= bottomRight.y && !hit; y++) {
-            for (let x = topLeft.x; x <= bottomRight.x && !hit; x++) {
-              console.log("Checking pixel x: " + x + " y: " + y)
-              console.log(pixels?.getPixel(x, y)?.elementId)
-              console.log(pixels?.getPixel(x, y)?.distanceFraction)
-              if (pixels?.getPixel(x, y)?.elementId === this._targetId) {
-                console.log("hit!")
-                hit = true;
-              }
-            }
+        const targetLocation = this.getPositionAtDistance(this._targetDistance);
+        let curEvent = new BeButtonEvent;
+        this._linkedDriveTool.getCurrentButtonEvent(curEvent);
+        let targetedFromView = curEvent.viewport?.pickNearestVisibleGeometry(center, 1)
+        if (targetLocation && targetedFromView) {
+          console.log("--------------")
+          console.log("Real distance:")
+          console.log(this._viewport?.view.getCenter().distance(targetLocation))
+          console.log("Viewed distance:")
+          console.log(this._viewport?.view.getCenter().distance(targetedFromView))
+          console.log("Center: ")
+          console.log(center)
+          console.log("targetLocation: ")
+          console.log(targetLocation)
+          console.log("TargetFromView: ")
+          console.log(targetedFromView)
+          if (this._viewport?.view.getCenter().distance(targetLocation) - 10 < this._viewport?.view.getCenter().distance(targetedFromView)) {
+            hit = true;
           }
-        }, true);
+        }
       }
     }
     return hit;
@@ -320,9 +330,9 @@ export class DriveToolManager {
    */
   public updateMouseDecorationWithPosition(mousePosition: Point3d, pointLocation: Point3d | undefined) {
     this.distanceDecoration.mousePosition.setFrom(mousePosition);
-    if (this._positionOnCurve && pointLocation) {
-      if (this._viewport?.view.getCenter().distance(pointLocation)) {
-        this.distanceDecoration.distance = this._viewport?.view.getCenter().distance(pointLocation);
+    if (this._positionOnCurve && pointLocation && this._current3DPosition) {
+      if (this._current3DPosition.distance(pointLocation)) {
+        this.distanceDecoration.distance = this._current3DPosition.distance(pointLocation);
       }
     } else {
       this.distanceDecoration.distance = 0;
@@ -348,6 +358,7 @@ export class DriveToolManager {
     if (this._selectedCurve) {
       const fraction = (this._speed * this._intervalTime) / this._selectedCurve.curveLength();
       this.progress += fraction;
+      this._current3DPosition = this._viewport?.view.getCenter();
       this.updateProgressCounter();
       this._linkedDriveTool.updateRectangleDecoration();
     }
