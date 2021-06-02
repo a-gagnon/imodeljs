@@ -30,7 +30,7 @@ export class DriveTool extends PrimitiveTool {
 
   private _manager = new DriveToolManager(new DistanceDecoration(), new RectangleDecoration(), this);
   private _inputManager = new DriveToolInputManager(this._manager);
-  private _lastLoggedEvent?: BeButtonEvent;
+  public _lastLoggedEvent?: BeButtonEvent;
 
   public static get driveToolItemDef() {
     return new ToolItemDef({

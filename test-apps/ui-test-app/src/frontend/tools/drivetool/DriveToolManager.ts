@@ -97,6 +97,10 @@ export class DriveToolManager {
     return this._progress;
   }
 
+  public get viewport(): ScreenViewport | undefined {
+    return this._viewport;
+  }
+
   public set progress(value: number) {
     value = value > 0 ? value : 0;
     value = value < 1 ? value : 1;
@@ -213,18 +217,16 @@ export class DriveToolManager {
     if (this.targetId && this._viewport) {
       const corners = this.getDetectionZoneCorners();
 
-      if (corners) {
+      if (corners && this._linkedDriveTool._lastLoggedEvent) {
         const { topLeft, bottomRight } = corners;
         const center = new Point3d((bottomRight.x + topLeft.x) / 2, (bottomRight.y + topLeft.y) / 2, 0);
         const rectangle = new ViewRect();
         rectangle.initFromPoints(topLeft, bottomRight);
 
         const targetLocation = this.getPositionAtDistance(this._targetDistance);
-        let curEvent = new BeButtonEvent;
-        this._linkedDriveTool.getCurrentButtonEvent(curEvent);
-        const targetedFromView = curEvent.viewport?.pickNearestVisibleGeometry(center, 1);
+        const targetedFromView = this._linkedDriveTool._lastLoggedEvent.viewport?.pickNearestVisibleGeometry(center, 1);
         const currentViewPort = this._viewport;
-        if (targetLocation && targetedFromView) {
+        if (targetLocation && targetedFromView && this._linkedDriveTool._lastLoggedEvent.viewport) {
           console.log("--------------");
           console.log("Real distance:");
           console.log(this._viewport?.view.getCenter().distance(targetLocation));
@@ -236,7 +238,7 @@ export class DriveToolManager {
           console.log(targetLocation);
           console.log("TargetFromView: ");
           console.log(targetedFromView);
-          if (currentViewPort.view.getCenter().distance(targetLocation) - 10 < currentViewPort.view.getCenter().distance(targetedFromView)) {
+          if (this._linkedDriveTool._lastLoggedEvent.viewport?.view.getCenter().distance(targetLocation) - 10 < this._linkedDriveTool._lastLoggedEvent.viewport?.view.getCenter().distance(targetedFromView)) {
             hit = true;
           }
         } else {
@@ -361,11 +363,11 @@ export class DriveToolManager {
    */
   private step(): void {
     if (this._selectedCurve) {
+      this._linkedDriveTool.updateRectangleDecoration();
       const fraction = (this._speed * this._intervalTime) / this._selectedCurve.curveLength();
       this.progress += fraction;
       this._current3DPosition = this._viewport?.view.getCenter();
       this.updateProgressCounter();
-      this._linkedDriveTool.updateRectangleDecoration();
     }
   }
 
