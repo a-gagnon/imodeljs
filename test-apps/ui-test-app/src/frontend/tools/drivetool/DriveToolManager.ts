@@ -215,29 +215,32 @@ export class DriveToolManager {
   public isTargetVisible(): boolean {
     let hit = false;
     if (this.targetId && this._viewport) {
-
       const corners = this.getDetectionZoneCorners();
 
       if (corners) {
         const { topLeft, bottomRight } = corners;
-
-        const rectangle = new ViewRect();
-        rectangle.initFromPoints(topLeft, bottomRight);
-        console.log("test2")
-        this._viewport?.readPixels(rectangle, Pixel.Selector.All, (pixels) => {
-          for (let y = topLeft.y; y <= bottomRight.y && !hit; y++) {
-            for (let x = topLeft.x; x <= bottomRight.x && !hit; x++) {
-              console.log("x: " + x + "y: " + y)
-              console.log(pixels?.getPixel(x, y)?.elementId)
-              if (pixels?.getPixel(x, y)?.elementId === this._targetId) {
-                hit = true;
-              }
-            }
+        //Center gives screen coordinates of the target
+        const center = new Point3d((bottomRight.x + topLeft.x) / 2, (bottomRight.y + topLeft.y) / 2, 0);
+        const targetLocation = this.getPositionAtDistance(this._targetDistance);
+        let targetedFromView = this.viewport!.pickNearestVisibleGeometry(this.viewport!.viewToWorld(center), 1)
+        if (targetLocation && targetedFromView) {
+          console.log("--------------")
+          console.log("Real distance:")
+          console.log(this._viewport?.view.getCenter().distance(targetLocation))
+          console.log("Viewed distance:")
+          console.log(this._viewport?.view.getCenter().distance(targetedFromView))
+          console.log("Center: ")
+          console.log(center)
+          console.log("targetLocation: ")
+          console.log(targetLocation)
+          console.log("TargetFromView: ")
+          console.log(targetedFromView)
+          if (this._viewport?.view.getCenter().distance(targetLocation) - (0.2 * this._viewport?.view.getCenter().distance(targetLocation)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
+            hit = true;
           }
-        }, true);
+        }
       }
     }
-    console.log(hit)
     return hit;
   }
 
