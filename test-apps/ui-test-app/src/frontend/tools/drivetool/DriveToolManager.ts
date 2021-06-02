@@ -215,37 +215,29 @@ export class DriveToolManager {
   public isTargetVisible(): boolean {
     let hit = false;
     if (this.targetId && this._viewport) {
+
       const corners = this.getDetectionZoneCorners();
 
-      if (corners && this._linkedDriveTool._lastLoggedEvent) {
+      if (corners) {
         const { topLeft, bottomRight } = corners;
-        const center = new Point3d((bottomRight.x + topLeft.x) / 2, (bottomRight.y + topLeft.y) / 2, 0);
+
         const rectangle = new ViewRect();
         rectangle.initFromPoints(topLeft, bottomRight);
-
-        const targetLocation = this.getPositionAtDistance(this._targetDistance);
-        const targetedFromView = this._linkedDriveTool._lastLoggedEvent.viewport?.pickNearestVisibleGeometry(center, 1);
-        const currentViewPort = this._viewport;
-        if (targetLocation && targetedFromView && this._linkedDriveTool._lastLoggedEvent.viewport) {
-          console.log("--------------");
-          console.log("Real distance:");
-          console.log(this._viewport?.view.getCenter().distance(targetLocation));
-          console.log("Viewed distance:");
-          console.log(this._viewport?.view.getCenter().distance(targetedFromView));
-          console.log("Center: ");
-          console.log(center);
-          console.log("targetLocation: ");
-          console.log(targetLocation);
-          console.log("TargetFromView: ");
-          console.log(targetedFromView);
-          if (this._linkedDriveTool._lastLoggedEvent.viewport?.view.getCenter().distance(targetLocation) - 10 < this._linkedDriveTool._lastLoggedEvent.viewport?.view.getCenter().distance(targetedFromView)) {
-            hit = true;
+        console.log("test2")
+        this._viewport?.readPixels(rectangle, Pixel.Selector.All, (pixels) => {
+          for (let y = topLeft.y; y <= bottomRight.y && !hit; y++) {
+            for (let x = topLeft.x; x <= bottomRight.x && !hit; x++) {
+              console.log("x: " + x + "y: " + y)
+              console.log(pixels?.getPixel(x, y)?.elementId)
+              if (pixels?.getPixel(x, y)?.elementId === this._targetId) {
+                hit = true;
+              }
+            }
           }
-        } else {
-          const message = new NotifyMessageDetails(OutputMessagePriority.Warning, "Unable to verify target location");
-        }
+        }, true);
       }
     }
+    console.log(hit)
     return hit;
   }
 
@@ -337,7 +329,6 @@ export class DriveToolManager {
     this.distanceDecoration.mousePosition.setFrom(mousePosition);
     if (this._positionOnCurve && pointLocation && this._viewport) {
       const current3DPosition = this._viewport?.view.getCenter();
-      console.log(mousePosition)
       if (current3DPosition.distance(pointLocation)) {
         this.distanceDecoration.distance = current3DPosition.distance(pointLocation);
       }

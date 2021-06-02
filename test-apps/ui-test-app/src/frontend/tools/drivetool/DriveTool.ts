@@ -48,6 +48,10 @@ export class DriveTool extends PrimitiveTool {
     return this._manager;
   }
 
+  public get lastLoggedEvent(): BeButtonEvent | undefined {
+    return this._lastLoggedEvent;
+  }
+
   /**
    * Initializes tool
    */
@@ -219,9 +223,9 @@ export class DriveTool extends PrimitiveTool {
    * Locates the element under the mouse using the last called event then updates the mouse decoration.
    */
   public async updateRectangleDecoration(): Promise<void> {
-    if (this._lastLoggedEvent) {
-      this._manager.updateMouseDecorationWithPosition(this._lastLoggedEvent.viewPoint, this._lastLoggedEvent.viewport?.pickNearestVisibleGeometry(this._lastLoggedEvent.point, 1))
-      this._lastLoggedEvent.viewport?.invalidateDecorations();
+    if (this.lastLoggedEvent) {
+      this.manager.updateMouseDecorationWithPosition(this.lastLoggedEvent.viewPoint, this._manager.viewport!.pickNearestVisibleGeometry(this._manager.viewport!.viewToWorld(this.lastLoggedEvent.viewPoint), 1))
+      this.lastLoggedEvent.viewport?.invalidateDecorations();
     }
   }
 
