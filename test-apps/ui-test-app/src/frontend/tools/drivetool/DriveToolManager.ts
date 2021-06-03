@@ -67,7 +67,6 @@ export class DriveToolManager {
   private _targetPosition?: Point3d;
 
   constructor(private _distanceDecoration: DistanceDecoration,
-    private _detectionZoneDecoration: RectangleDecoration,
     private _linkedDriveTool: DriveTool) {
   }
 
@@ -85,10 +84,6 @@ export class DriveToolManager {
 
   public get distanceDecoration(): DistanceDecoration {
     return this._distanceDecoration;
-  }
-
-  public get detectionZoneDecoration(): RectangleDecoration {
-    return this._detectionZoneDecoration;
   }
 
   public get progress(): number {
@@ -194,16 +189,6 @@ export class DriveToolManager {
           }
         }
       }, this._intervalTime * 1000);
-    }
-  }
-
-  /**
-   * Update the shape of detection area decoration on the viewport
-   */
-  public updateDetectZoneDecorationPoints(): void {
-    const corners = this.getDetectionZoneCorners();
-    if (corners) {
-      this._detectionZoneDecoration.setRectangle(corners.topLeft.x, corners.topLeft.y, DriveToolConfig.detectionRectangleWidth, DriveToolConfig.detectionRectangleHeight);
     }
   }
 

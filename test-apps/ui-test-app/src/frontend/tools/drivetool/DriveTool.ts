@@ -28,7 +28,7 @@ export class DriveTool extends PrimitiveTool {
   public static toolId = "DriveTool";
   public static iconSpec = "icon-airplane";
 
-  private _manager = new DriveToolManager(new DistanceDecoration(), new RectangleDecoration(), this);
+  private _manager = new DriveToolManager(new DistanceDecoration(), this);
   private _inputManager = new DriveToolInputManager(this._manager);
   public _lastLoggedEvent?: BeButtonEvent;
 
@@ -171,8 +171,6 @@ export class DriveTool extends PrimitiveTool {
 
       context.addDecorationFromBuilder(builder);
 
-      this._manager.updateDetectZoneDecorationPoints();
-      context.addCanvasDecoration(this._manager.detectionZoneDecoration);
     }
   }
 
