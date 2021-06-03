@@ -212,30 +212,14 @@ export class DriveToolManager {
    */
   public isTargetVisible(): boolean {
     let hit = false;
-    if (this._viewport) {
-      const corners = this.getDetectionZoneCorners();
-      if (corners) {
-        const { topLeft, bottomRight } = corners;
-        //Center gives screen coordinates of the target
-        const center = new Point3d((bottomRight.x + topLeft.x) / 2, (bottomRight.y + topLeft.y) / 2, 0);
-        const targetedFromView = this.viewport!.pickNearestVisibleGeometry(this.viewport!.viewToWorld(center), 1)
-        console.log(this._targetPosition)
-        if (this._targetPosition && targetedFromView) {
-          console.log("--------------")
-          console.log("Real distance:")
-          console.log(this._viewport?.view.getCenter().distance(this._targetPosition))
-          console.log("Viewed distance:")
-          console.log(this._viewport?.view.getCenter().distance(targetedFromView))
-          console.log("Center: ")
-          console.log(center)
-          console.log("targetLocation: ")
-          console.log(this._targetPosition)
-          console.log("TargetFromView: ")
-          console.log(targetedFromView)
-          if (this._viewport?.view.getCenter().distance(this._targetPosition) - (0.2 * this._viewport?.view.getCenter().distance(this._targetPosition)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
-            hit = true;
-          }
+    if (this._viewport && this._targetPosition) {
+      const targetedFromView = this.viewport!.pickNearestVisibleGeometry(this._targetPosition, 1)
+      if (targetedFromView) {
+        if (this._viewport?.view.getCenter().distance(this._targetPosition) - (0.1 * this._viewport?.view.getCenter().distance(this._targetPosition)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
+          hit = true;
         }
+      } else {
+        hit = true;
       }
     }
     return hit;
