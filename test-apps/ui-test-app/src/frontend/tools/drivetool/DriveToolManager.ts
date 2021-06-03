@@ -210,19 +210,18 @@ export class DriveToolManager {
   }
 
   /**
-   * Read all pixel in detection zone until the target is found.
+   * Check the visible depth at the target location and compares it to the actual target distance.
    */
   public isTargetVisible(): boolean {
     let hit = false;
-    if (this.targetId && this._viewport) {
+    if (this._viewport) {
       const corners = this.getDetectionZoneCorners();
-
       if (corners) {
         const { topLeft, bottomRight } = corners;
         //Center gives screen coordinates of the target
         const center = new Point3d((bottomRight.x + topLeft.x) / 2, (bottomRight.y + topLeft.y) / 2, 0);
         const targetLocation = this.getPositionAtDistance(this._targetDistance);
-        let targetedFromView = this.viewport!.pickNearestVisibleGeometry(this.viewport!.viewToWorld(center), 1)
+        const targetedFromView = this.viewport!.pickNearestVisibleGeometry(this.viewport!.viewToWorld(center), 1)
         if (targetLocation && targetedFromView) {
           console.log("--------------")
           console.log("Real distance:")
@@ -272,6 +271,7 @@ export class DriveToolManager {
   public toggleTarget(): void {
     this._targetEnabled = !this._targetEnabled;
     this._autoStopEnabled = !this._autoStopEnabled;
+    this.updateCamera();
   }
 
   /**
