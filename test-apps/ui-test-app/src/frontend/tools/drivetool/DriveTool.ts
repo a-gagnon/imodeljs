@@ -28,8 +28,9 @@ export class DriveTool extends PrimitiveTool {
   public static toolId = "DriveTool";
   public static iconSpec = "icon-airplane";
 
-  private _manager = new DriveToolManager(new DistanceDecoration(), new RectangleDecoration(), this);
+  private _manager = new DriveToolManager(new DistanceDecoration(), this);
   private _inputManager = new DriveToolInputManager(this._manager);
+  private _lastLoggedEvent?: BeButtonEvent;
 
   public static get driveToolItemDef() {
     return new ToolItemDef({
@@ -45,6 +46,10 @@ export class DriveTool extends PrimitiveTool {
 
   public get manager() {
     return this._manager;
+  }
+
+  public get lastLoggedEvent(): BeButtonEvent | undefined {
+    return this._lastLoggedEvent;
   }
 
   /**
@@ -166,8 +171,6 @@ export class DriveTool extends PrimitiveTool {
 
       context.addDecorationFromBuilder(builder);
 
-      this._manager.updateDetectZoneDecorationPoints();
-      context.addCanvasDecoration(this._manager.detectionZoneDecoration);
     }
   }
 
@@ -180,6 +183,7 @@ export class DriveTool extends PrimitiveTool {
     if (hit?.sourceId) {
       await this._manager.setSelectedCurve(hit.sourceId);
     }
+    IModelApp.accuSnap.enableSnap(false);
     return EventHandled.Yes;
   }
 
@@ -208,8 +212,19 @@ export class DriveTool extends PrimitiveTool {
    * @param ev mouse motion event
    */
   public async onMouseMotion(ev: BeButtonEvent): Promise<void> {
-    const hit = await IModelApp.locateManager.doLocate(new LocateResponse(), true, ev.point, ev.viewport, ev.inputSource);
-    this._manager.updateMouseDecoration(ev.viewPoint, hit);
+    this._manager.updateMouseDecorationWithPosition(ev.viewPoint, ev.viewport?.pickNearestVisibleGeometry(ev.point, 1))
+    ev.viewport?.invalidateDecorations();
+    this._lastLoggedEvent = ev.clone();
+  }
+
+  /**
+   * Locates the element under the mouse using the last called event then updates the mouse decoration.
+   */
+  public async updateRectangleDecoration(): Promise<void> {
+    if (this.lastLoggedEvent) {
+      this.manager.updateMouseDecorationWithPosition(this.lastLoggedEvent.viewPoint, this._manager.viewport!.pickNearestVisibleGeometry(this._manager.viewport!.viewToWorld(this.lastLoggedEvent.viewPoint), 1))
+      this.lastLoggedEvent.viewport?.invalidateDecorations();
+    }
   }
 
   /**

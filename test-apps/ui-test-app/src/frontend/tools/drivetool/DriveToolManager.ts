@@ -3,6 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import {
+  BeButtonEvent,
   HitDetail,
   IModelApp,
   NotifyMessageDetails,
@@ -62,9 +63,10 @@ export class DriveToolManager {
   private _targetDistance = DriveToolConfig.targetDistanceDefault;
   /** Id of the target */
   private _targetId?: string;
+  /** World3D position of the target */
+  private _targetPosition?: Point3d;
 
   constructor(private _distanceDecoration: DistanceDecoration,
-    private _detectionZoneDecoration: RectangleDecoration,
     private _linkedDriveTool: DriveTool) {
   }
 
@@ -84,12 +86,12 @@ export class DriveToolManager {
     return this._distanceDecoration;
   }
 
-  public get detectionZoneDecoration(): RectangleDecoration {
-    return this._detectionZoneDecoration;
-  }
-
   public get progress(): number {
     return this._progress;
+  }
+
+  public get viewport(): ScreenViewport | undefined {
+    return this._viewport;
   }
 
   public set progress(value: number) {
@@ -191,39 +193,18 @@ export class DriveToolManager {
   }
 
   /**
-   * Update the shape of detection area decoration on the viewport
-   */
-  public updateDetectZoneDecorationPoints(): void {
-    const corners = this.getDetectionZoneCorners();
-    if (corners) {
-      this._detectionZoneDecoration.setRectangle(corners.topLeft.x, corners.topLeft.y, DriveToolConfig.detectionRectangleWidth, DriveToolConfig.detectionRectangleHeight);
-    }
-  }
-
-  /**
-   * Read all pixel in detection zone until the target is found.
+   * Check the visible depth at the target location and compares it to the actual target distance.
    */
   public isTargetVisible(): boolean {
     let hit = false;
-    if (this.targetId && this._viewport) {
-
-      const corners = this.getDetectionZoneCorners();
-
-      if (corners) {
-        const { topLeft, bottomRight } = corners;
-
-        const rectangle = new ViewRect();
-        rectangle.initFromPoints(topLeft, bottomRight);
-
-        this._viewport?.readPixels(rectangle, Pixel.Selector.All, (pixels) => {
-          for (let y = topLeft.y; y <= bottomRight.y && !hit; y++) {
-            for (let x = topLeft.x; x <= bottomRight.x && !hit; x++) {
-              if (pixels?.getPixel(x, y)?.elementId === this._targetId) {
-                hit = true;
-              }
-            }
-          }
-        }, true);
+    if (this._viewport && this._targetPosition) {
+      const targetedFromView = this.viewport!.pickNearestVisibleGeometry(this._targetPosition, 1)
+      if (targetedFromView) {
+        if (this._viewport?.view.getCenter().distance(this._targetPosition) - (0.1 * this._viewport?.view.getCenter().distance(this._targetPosition)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
+          hit = true;
+        }
+      } else {
+        hit = true;
       }
     }
     return hit;
@@ -237,7 +218,9 @@ export class DriveToolManager {
     if (!this._positionOnCurve)
       return [new Point3d()];
 
-    const position = this.getPositionAtDistance(this._targetDistance);
+    let position = this.getPositionAtDistance(this._targetDistance);
+    position!.z += DriveToolConfig.targetVerticalOffset;
+    this._targetPosition = position;
 
     if (!position)
       return [new Point3d()];
@@ -257,6 +240,7 @@ export class DriveToolManager {
   public toggleTarget(): void {
     this._targetEnabled = !this._targetEnabled;
     this._autoStopEnabled = !this._autoStopEnabled;
+    this.updateCamera();
   }
 
   /**
@@ -311,12 +295,15 @@ export class DriveToolManager {
   /**
    * Updates distance mouse decoration
    * @param mousePosition - Current mouse position in view coordinates
-   * @param hit - Current hit at mouse position
+   * @param pointLocation - Point of first surface encountered
    */
-  public updateMouseDecoration(mousePosition: Point3d, hit: HitDetail | undefined): void {
-    this.distanceDecoration.mousePosition = mousePosition;
-    if (this._positionOnCurve && hit) {
-      this.distanceDecoration.distance = this._positionOnCurve.distance(hit.getPoint());
+  public updateMouseDecorationWithPosition(mousePosition: Point3d, pointLocation: Point3d | undefined) {
+    this.distanceDecoration.mousePosition.setFrom(mousePosition);
+    if (this._positionOnCurve && pointLocation && this._viewport) {
+      const current3DPosition = this._viewport?.view.getCenter();
+      if (current3DPosition.distance(pointLocation)) {
+        this.distanceDecoration.distance = current3DPosition.distance(pointLocation);
+      }
     } else {
       this.distanceDecoration.distance = 0;
     }
@@ -339,10 +326,11 @@ export class DriveToolManager {
    */
   private step(): void {
     if (this._selectedCurve) {
+      this._linkedDriveTool.updateRectangleDecoration();
       const fraction = (this._speed * this._intervalTime) / this._selectedCurve.curveLength();
       this.progress += fraction;
+      this.updateProgressCounter();
     }
-    this.updateProgressCounter();
   }
 
   /**
