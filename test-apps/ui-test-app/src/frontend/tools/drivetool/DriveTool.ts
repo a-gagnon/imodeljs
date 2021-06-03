@@ -126,6 +126,7 @@ export class DriveTool extends PrimitiveTool {
       case DriveToolProperties.targetDistance.name: this._manager.targetDistance = value; break;
     }
     this.syncAllSettings();
+    this._manager.updateCamera();
     return true;
   }
 

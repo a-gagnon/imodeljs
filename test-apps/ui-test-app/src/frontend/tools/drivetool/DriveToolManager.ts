@@ -348,9 +348,9 @@ export class DriveToolManager {
   /**
    * Sets the camera position based on the position on the curve and the offsets.
    * Syncs the camera properties with the viewport.
-   * @private
+   * @public
    */
-  private updateCamera(): void {
+  public updateCamera(): void {
     if (!this._viewport || !this._view)
       return;
 
