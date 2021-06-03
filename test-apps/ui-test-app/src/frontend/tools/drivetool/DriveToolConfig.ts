@@ -32,4 +32,5 @@ export class DriveToolConfig {
 
   public static targetDistanceDefault = 200;
   public static targetHeight = 0.5;
+  public static targetVerticalOffset = 2;
 }

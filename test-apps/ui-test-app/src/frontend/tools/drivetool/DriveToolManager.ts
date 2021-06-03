@@ -49,10 +49,6 @@ export class DriveToolManager {
   private _lateralOffset = DriveToolConfig.lateralOffsetDefault;
   /** Speed of the movement along the selected curve in unit/s */
   private _speed = DriveToolConfig.speedDefault;
-  /**Current position in the 3d World */
-  private _current3DPosition?: Point3d;
-  /**Next position in the 3d World */
-  private _next3DPosition?: Point3d;
 
   /** Time between each calculation of the next position to move to along the curve */
   private _intervalTime = DriveToolConfig.intervalTime;
@@ -67,6 +63,8 @@ export class DriveToolManager {
   private _targetDistance = DriveToolConfig.targetDistanceDefault;
   /** Id of the target */
   private _targetId?: string;
+  /** World3D position of the target */
+  private _targetPosition?: Point3d;
 
   constructor(private _distanceDecoration: DistanceDecoration,
     private _detectionZoneDecoration: RectangleDecoration,
@@ -220,21 +218,21 @@ export class DriveToolManager {
         const { topLeft, bottomRight } = corners;
         //Center gives screen coordinates of the target
         const center = new Point3d((bottomRight.x + topLeft.x) / 2, (bottomRight.y + topLeft.y) / 2, 0);
-        const targetLocation = this.getPositionAtDistance(this._targetDistance);
         const targetedFromView = this.viewport!.pickNearestVisibleGeometry(this.viewport!.viewToWorld(center), 1)
-        if (targetLocation && targetedFromView) {
+        console.log(this._targetPosition)
+        if (this._targetPosition && targetedFromView) {
           console.log("--------------")
           console.log("Real distance:")
-          console.log(this._viewport?.view.getCenter().distance(targetLocation))
+          console.log(this._viewport?.view.getCenter().distance(this._targetPosition))
           console.log("Viewed distance:")
           console.log(this._viewport?.view.getCenter().distance(targetedFromView))
           console.log("Center: ")
           console.log(center)
           console.log("targetLocation: ")
-          console.log(targetLocation)
+          console.log(this._targetPosition)
           console.log("TargetFromView: ")
           console.log(targetedFromView)
-          if (this._viewport?.view.getCenter().distance(targetLocation) - (0.2 * this._viewport?.view.getCenter().distance(targetLocation)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
+          if (this._viewport?.view.getCenter().distance(this._targetPosition) - (0.2 * this._viewport?.view.getCenter().distance(this._targetPosition)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
             hit = true;
           }
         }
@@ -251,7 +249,9 @@ export class DriveToolManager {
     if (!this._positionOnCurve)
       return [new Point3d()];
 
-    const position = this.getPositionAtDistance(this._targetDistance);
+    let position = this.getPositionAtDistance(this._targetDistance);
+    position!.z += DriveToolConfig.targetVerticalOffset;
+    this._targetPosition = position;
 
     if (!position)
       return [new Point3d()];
@@ -360,7 +360,6 @@ export class DriveToolManager {
       this._linkedDriveTool.updateRectangleDecoration();
       const fraction = (this._speed * this._intervalTime) / this._selectedCurve.curveLength();
       this.progress += fraction;
-      this._current3DPosition = this._viewport?.view.getCenter();
       this.updateProgressCounter();
     }
   }
