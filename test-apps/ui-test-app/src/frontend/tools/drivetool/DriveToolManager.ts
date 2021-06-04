@@ -194,6 +194,7 @@ export class DriveToolManager {
 
   /**
    * Check the visible depth at the target location and compares it to the actual target distance.
+   * @returns a boolean of wether the target is visible by the camera or not
    */
   public isTargetVisible(): boolean {
     let hit = false;
