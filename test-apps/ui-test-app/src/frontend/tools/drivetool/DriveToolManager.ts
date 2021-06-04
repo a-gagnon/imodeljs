@@ -180,12 +180,13 @@ export class DriveToolManager {
       this._moving = true;
       this.step();
       this._intervalId = setInterval(() => {
-        this.step();
         if (this._autoStopEnabled) {
           if (!this.isTargetVisible()) {
             this.stop();
             const message = new NotifyMessageDetails(OutputMessagePriority.Warning, "Target not visible");
             IModelApp.notifications.outputMessage(message);
+          } else {
+            this.step();
           }
         }
       }, this._intervalTime * 1000);
