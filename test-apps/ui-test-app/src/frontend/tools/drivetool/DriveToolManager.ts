@@ -197,7 +197,7 @@ export class DriveToolManager {
     if (this._viewport && this._targetPosition) {
       const targetedFromView = this.viewport!.pickNearestVisibleGeometry(this._targetPosition, 1)
       if (targetedFromView) {
-        if (this._viewport?.view.getCenter().distance(this._targetPosition) - (0.1 * this._viewport?.view.getCenter().distance(this._targetPosition)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
+        if (this._viewport?.view.getCenter().distance(this._targetPosition) - (0.05 * this._viewport?.view.getCenter().distance(this._targetPosition)) < this._viewport?.view.getCenter().distance(targetedFromView)) {
           hit = true;
         }
       } else {
