@@ -3,14 +3,10 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import {
-  BeButtonEvent,
-  HitDetail,
   IModelApp,
   NotifyMessageDetails,
   OutputMessagePriority,
-  Pixel,
   ScreenViewport,
-  ViewRect,
   ViewState3d,
 } from "@bentley/imodeljs-frontend";
 import { Easing } from "@bentley/imodeljs-common";
