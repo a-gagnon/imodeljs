@@ -216,14 +216,16 @@ export class DriveToolManager {
       return [new Point3d()];
 
     let position = this.getPositionAtDistance(this._targetDistance);
-    position!.z += DriveToolConfig.targetVerticalOffset;
-    this._targetPosition = position;
 
     if (!position)
       return [new Point3d()];
 
     const direction = position.minus(this._positionOnCurve);
     const vectorDirection = Vector3d.createFrom(direction).normalize();
+    position.z += DriveToolConfig.targetVerticalOffset;
+    this._targetPosition = position;
+    const targetSideStepDirection = vectorDirection?.unitPerpendicularXY();
+    position = position.plus(targetSideStepDirection!.scale(- this._lateralOffset));
 
     if (!vectorDirection)
       return [new Point3d()];
