@@ -18,7 +18,6 @@ import { Angle, CurveChainWithDistanceIndex, Point2d, Point3d, Vector3d } from "
 import { CustomRpcInterface, CustomRpcUtilities } from "../../../common/CustomRpcInterface";
 import { DriveToolConfig } from "./DriveToolConfig";
 import { DistanceDecoration } from "./DistanceDecoration";
-import { RectangleDecoration } from "./RectangleDecoration";
 import { ShapeUtils } from './ShapeUtils';
 import { DriveTool } from './DriveTool'
 

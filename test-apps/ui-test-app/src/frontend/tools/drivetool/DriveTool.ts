@@ -20,7 +20,6 @@ import { ToolItemDef } from "@bentley/ui-framework";
 import { DriveToolProperties } from "./DriveToolProperties";
 import { ColorDef } from "@bentley/imodeljs-common";
 import { DistanceDecoration } from "./DistanceDecoration";
-import { RectangleDecoration } from "./RectangleDecoration";
 import { DriveToolInputManager } from "./DriveToolInputManager";
 
 export class DriveTool extends PrimitiveTool {
